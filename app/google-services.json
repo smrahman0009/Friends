@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1061983682088",
+    "firebase_url": "https://friends-24496.firebaseio.com",
+    "project_id": "friends-24496",
+    "storage_bucket": "friends-24496.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061983682088:android:1df3d9f8040cf446",
+        "android_client_info": {
+          "package_name": "com.mrappstore.mushfik.friends"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1061983682088-n2e02t4adm2m1egod4dn6qf1el36iib6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mrappstore.mushfik.friends",
+            "certificate_hash": "f6b336faebe5802f3a92f3e185a5291b6a60fa47"
+          }
+        },
+        {
+          "client_id": "1061983682088-38i315ffkkvc4990tsh882709l89rr0n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4G2vFTXpPowMGcvNoJJUGQZXd2WT8uJs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061983682088-38i315ffkkvc4990tsh882709l89rr0n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
