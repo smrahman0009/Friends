@@ -82,7 +82,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+       // mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mFirebaseUser =  FirebaseAuth.getInstance().getCurrentUser();
         if (mFirebaseUser != null){
             Log.d(TAG,"user is allready logged in");
             startActivity(new Intent(LoginActivity.this,MainActivity.class));
