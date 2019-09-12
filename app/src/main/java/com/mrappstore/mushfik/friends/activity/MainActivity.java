@@ -1,5 +1,6 @@
 package com.mrappstore.mushfik.friends.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
                         setFragment(newsFeedFragment);
                         break;
                     case R.id.profile_fragment:
+                        startActivity(new Intent(MainActivity.this,ProfileActivity.class));
                         break;
                     case R.id.profile_friends:
                         setFragment(friendsFragment);

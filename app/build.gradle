@@ -47,6 +47,9 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0-beta01'
     implementation 'androidx.cardview:cardview:1.0.0-beta01'
 
+    // circular imageview
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+
     //Butter knife
     implementation 'com.jakewharton:butterknife:10.1.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'

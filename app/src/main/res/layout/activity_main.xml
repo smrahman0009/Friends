@@ -78,10 +78,12 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-<com.google.android.material.bottomnavigation.BottomNavigationView
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="#fff" />
+        android:layout_marginBottom="3dp"
+        android:background="#fff"
+        app:labelVisibilityMode="labeled"/>
 </RelativeLayout>
