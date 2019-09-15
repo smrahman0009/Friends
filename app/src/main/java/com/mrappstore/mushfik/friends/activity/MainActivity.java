@@ -3,16 +3,19 @@ package com.mrappstore.mushfik.friends.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.mrappstore.mushfik.friends.R;
 import com.mrappstore.mushfik.friends.fragment.FriendsFragment;
 import com.mrappstore.mushfik.friends.fragment.NewsFeedFragment;
 import com.mrappstore.mushfik.friends.fragment.NotificationFragment;
+import com.mrappstore.mushfik.friends.util.Constants;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -86,7 +89,8 @@ public class MainActivity extends AppCompatActivity {
                         setFragment(newsFeedFragment);
                         break;
                     case R.id.profile_fragment:
-                        startActivity(new Intent(MainActivity.this,ProfileActivity.class));
+                        startActivity(new Intent(MainActivity.this,ProfileActivity.class)
+                                .putExtra("uid", FirebaseAuth.getInstance().getCurrentUser().getUid()));
                         break;
                     case R.id.profile_friends:
                         setFragment(friendsFragment);
@@ -99,12 +103,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,UploadActivity.class));
+
+            }
+        });
+
     }
 
     private void setFragment(Fragment fragment) {
-
-        bottomNavigation.setItemTextColor(ContextCompat.getColorStateList(bottomNavigation.getContext(),R.color.nav_item_colors));
-        bottomNavigation.setItemIconTintList(ContextCompat.getColorStateList(bottomNavigation.getContext(),R.color.nav_item_colors));
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.framelayout,fragment);
