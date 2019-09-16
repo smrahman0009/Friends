@@ -1,5 +1,7 @@
 package com.mrappstore.mushfik.friends.activity;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.model.Image;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mrappstore.mushfik.friends.R;
@@ -19,20 +23,28 @@ import com.mrappstore.mushfik.friends.model.User;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements DialogInterface.OnDismissListener {
 
     @BindView(R.id.profile_cover)
     ImageView profileCover;
@@ -65,7 +77,10 @@ public class ProfileActivity extends AppCompatActivity {
       5 = own profile
      */
     int CURRENT_STATE = 0;
+    int IMAGE_UPLOAD_TYPE = 0;
     String profileUrl="",coverUrl="";
+    ProgressDialog progressDialog;
+    private File compressedImageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +92,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_profile);
         ButterKnife.bind(this);
-
         uid = getIntent().getStringExtra("uid");
+
+        /*
+        As soon as the ProfileActivity opens up we want to show the progress dialog.
+         */
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Loading..");
+        progressDialog.show();
 
         profileViewPagerAdapter = new ProfileViewPagerAdapter(getSupportFragmentManager(),1);
 
@@ -95,6 +117,9 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         ViewPagerProfile.setAdapter(profileViewPagerAdapter);
+        /*
+        check the uid is own or others.
+         */
         if (FirebaseAuth.getInstance().getCurrentUser().getUid().equalsIgnoreCase(uid)){
             // UID  is matched, we are going to load our own profile
             CURRENT_STATE = 5;
@@ -105,6 +130,62 @@ public class ProfileActivity extends AppCompatActivity {
             // load other people here
 
         }
+
+        profileOptionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (CURRENT_STATE == 5){
+                    CharSequence options[] = new CharSequence[]{"Change Cover Profile","Change Profile Picture","" +
+                            "View Cover Photo","View Profile Picture"};
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+                    builder.setOnDismissListener(ProfileActivity.this);
+                    builder.setTitle("Choose Options");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int position) {
+                            if (position == 0){
+                                IMAGE_UPLOAD_TYPE = 1;
+                                ImagePicker.create(ProfileActivity.this)
+                                        .folderMode(true)
+                                        .single()
+                                        .toolbarFolderTitle("Choose a folder")
+                                        .toolbarImageTitle("Choose an image")
+                                        .start();
+                                /*
+                                Change cover profile
+                                 */
+                            }
+                            else if (position == 1){
+                                IMAGE_UPLOAD_TYPE = 0;
+                                ImagePicker.create(ProfileActivity.this)
+                                        .folderMode(true)
+                                        .single()
+                                        .toolbarFolderTitle("Choose a folder")
+                                        .toolbarImageTitle("Choose an image")
+                                        .start();
+                                /*O
+                                    Change profile picture
+                                 */
+                            }
+                            else if (position == 2){
+                                IMAGE_UPLOAD_TYPE = 2;
+                                /*
+                                View cover photo
+                                 */
+                            }
+                            else {
+                                IMAGE_UPLOAD_TYPE = 3;
+                                /*
+                                View Profile Picture
+                                 */
+                            }
+                        }
+                    });
+                    builder.show();
+
+                }
+            }
+        });
     }
 
     private void loadProfile() {
@@ -116,7 +197,10 @@ public class ProfileActivity extends AppCompatActivity {
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-
+                /*
+                After loading the profile from the network. we want to dismiss the progress dialog.
+                 */
+                progressDialog.dismiss();
                 if (response.body() != null){
                     profileUrl = response.body().getProfileUrl();
                     coverUrl = response.body().getCoverUrl();
@@ -172,8 +256,128 @@ public class ProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
+                progressDialog.dismiss();
                 Toast.makeText(ProfileActivity.this,"Something went wrong! .." +
                         "Please try again.",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            Image selectedImage = ImagePicker.getFirstImageOrNull(data);
+
+            try {
+                compressedImageFile = new Compressor(this)
+                        .setQuality(75)
+                        .compressToFile(new File(selectedImage.getPath()));
+                uploadFile(compressedImageFile);
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void uploadFile(final File compressedImageFile) {
+        ////////// NEED QUERY //////////////////////////////
+
+        progressDialog.setTitle("Loading...");
+        progressDialog.show();
+
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+
+        builder.addFormDataPart("postUserId",FirebaseAuth.getInstance().getCurrentUser().getUid());
+        builder.addFormDataPart("imageUploadType",IMAGE_UPLOAD_TYPE+"");
+        builder.addFormDataPart("file",compressedImageFile.getName(), RequestBody.create(
+                MediaType.parse("multipart/form-data"),compressedImageFile
+        ));
+
+
+        MultipartBody multipartBody = builder.build();
+        UserInterface userInterface = ApiClient.getApiClient().create(UserInterface.class);
+        Call<Integer> call = userInterface.uploadImage(multipartBody);
+        call.enqueue(new Callback<Integer>() {
+
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                progressDialog.dismiss();
+                if (response.body() != null && response.body() == 1){
+                    /*
+                    When images successfully uploaded we want our Picasso to load out of digital images here.
+                     */
+                    /*
+                    So we have to chekc whether the profile images uploaded or cover images uploaded.
+                    if IMAGE_UPLOAD_TYPE == 0 then uploaded image is profile image.
+                     */
+                    if (IMAGE_UPLOAD_TYPE == 0){
+
+                        Picasso.with(ProfileActivity.this)
+                                .load(compressedImageFile)
+                                .networkPolicy(NetworkPolicy.OFFLINE)
+                                .placeholder(R.drawable.default_image_placeholder)
+                                .into(profileImage, new com.squareup.picasso.Callback()
+                                {
+                                    @Override
+                                    public void onSuccess() {
+
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        Picasso.with(ProfileActivity.this)
+                                                .load(compressedImageFile)
+                                                .placeholder(R.drawable.default_image_placeholder)
+                                                .into(profileImage);
+                                    }
+                                });
+                        Toast.makeText(ProfileActivity.this, "Profile Picture Changed Successfully", Toast.LENGTH_LONG).show();
+                    }
+
+                    else {
+                        Picasso.with(ProfileActivity.this)
+                                .load(compressedImageFile)
+                                .networkPolicy(NetworkPolicy.OFFLINE)
+                                .placeholder(R.drawable.default_image_placeholder)
+                                .into(profileCover, new com.squareup.picasso.Callback() {
+
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError() {
+                                Picasso.with(ProfileActivity.this)
+                                        .load(compressedImageFile)
+                                        .placeholder(R.drawable.default_image_placeholder)
+                                        .into(profileCover);
+                            }
+                        });
+                        Toast.makeText(ProfileActivity.this, "Cover Picture Changed Successfully", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+                else {
+                    Toast.makeText(ProfileActivity.this,"Something went wrong..." +
+                            "",Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                Toast.makeText(ProfileActivity.this,"Something went wrong." +
+                        "Please try again..",Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
             }
         });
     }

@@ -15,7 +15,6 @@ import com.mrappstore.mushfik.friends.R;
 import com.mrappstore.mushfik.friends.fragment.FriendsFragment;
 import com.mrappstore.mushfik.friends.fragment.NewsFeedFragment;
 import com.mrappstore.mushfik.friends.fragment.NotificationFragment;
-import com.mrappstore.mushfik.friends.util.Constants;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,15 +24,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
 
     @BindView(R.id.toolbar_title)
     TextView toolbarTitle;
-
-    @BindView(R.id.search)
-    ImageView search;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -52,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     NotificationFragment notificationFragment;
     FriendsFragment friendsFragment;
 
+    @BindView(R.id.search)
+    ImageView search;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,12 +65,11 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
 
-
         ////////////// SET BOTTOM NAVIGATION BAR //////////////////
         bottomNavigation.inflateMenu(R.menu.bottom_navigation_main);
         bottomNavigation.setItemBackgroundResource(R.color.colorPrimary);
-        bottomNavigation.setItemTextColor(ContextCompat.getColorStateList(bottomNavigation.getContext(),R.color.nav_item_colors));
-        bottomNavigation.setItemIconTintList(ContextCompat.getColorStateList(bottomNavigation.getContext(),R.color.nav_item_colors));
+        bottomNavigation.setItemTextColor(ContextCompat.getColorStateList(bottomNavigation.getContext(), R.color.nav_item_colors));
+        bottomNavigation.setItemIconTintList(ContextCompat.getColorStateList(bottomNavigation.getContext(), R.color.nav_item_colors));
 
 
         /////////////////////// INITILIAZE FRAGMENT OBJECT ///////////////////////
@@ -84,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.newsfeed_fragment:
                         setFragment(newsFeedFragment);
                         break;
                     case R.id.profile_fragment:
-                        startActivity(new Intent(MainActivity.this,ProfileActivity.class)
+                        startActivity(new Intent(MainActivity.this, ProfileActivity.class)
                                 .putExtra("uid", FirebaseAuth.getInstance().getCurrentUser().getUid()));
                         break;
                     case R.id.profile_friends:
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,UploadActivity.class));
+                startActivity(new Intent(MainActivity.this, UploadActivity.class));
 
             }
         });
@@ -116,9 +115,14 @@ public class MainActivity extends AppCompatActivity {
     private void setFragment(Fragment fragment) {
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.framelayout,fragment);
+        fragmentTransaction.replace(R.id.framelayout, fragment);
         fragmentTransaction.commit();
     }
 
 
+    @OnClick(R.id.search)
+    public void onViewClicked() {
+        startActivity(new Intent(MainActivity.this,SearchActivity.class));
+
+    }
 }
