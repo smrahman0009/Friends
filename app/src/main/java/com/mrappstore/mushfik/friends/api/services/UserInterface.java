@@ -3,6 +3,7 @@ package com.mrappstore.mushfik.friends.api.services;
 import com.mrappstore.mushfik.friends.activity.LoginActivity;
 import com.mrappstore.mushfik.friends.model.User;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -25,5 +26,8 @@ public interface UserInterface {
 
     @POST("uploadImage")
     Call<Integer>uploadImage(@Body MultipartBody requestBody);
+
+    @GET("search")
+    Call<List<User>>search(@QueryMap Map<String,String> params);
 
 }

@@ -186,6 +186,8 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                 }
             }
         });
+
+
     }
 
     private void loadProfile() {
@@ -222,6 +224,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                                     @Override
                                     public void onError() {
                                         Picasso.with(ProfileActivity.this).load(profileUrl).into(profileImage);
+
                                     }
                                 });
                     }
