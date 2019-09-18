@@ -1,8 +1,10 @@
 package com.mrappstore.mushfik.friends.activity;
 
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -32,6 +34,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Pair;
+import androidx.transition.Transition;
 import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -89,6 +93,8 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
         ///////// FOR HIDING STATUS BAR //////////////
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
 
         setContentView(R.layout.activity_profile);
         ButterKnife.bind(this);
@@ -204,50 +210,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                  */
                 progressDialog.dismiss();
                 if (response.body() != null){
-                    profileUrl = response.body().getProfileUrl();
-                    coverUrl = response.body().getCoverUrl();
-                    collapsingToolbar.setTitle(response.body().getName());
-
-                    if (!profileUrl.isEmpty()){
-                        //////// it tries to load the image from offline / cache. and it is able to
-                        /// load the image from offline then onSuccess() method called
-                        //// otherwise onError() method called.
-                        //// incase of failure we load the image from online.
-
-                        Picasso.with(ProfileActivity.this).load(profileUrl).networkPolicy(NetworkPolicy.OFFLINE)
-                                .into(profileImage, new com.squareup.picasso.Callback() {
-                                    @Override
-                                    public void onSuccess() {
-
-                                    }
-
-                                    @Override
-                                    public void onError() {
-                                        Picasso.with(ProfileActivity.this).load(profileUrl).into(profileImage);
-
-                                    }
-                                });
-                    }
-
-                    if (!coverUrl.isEmpty()){
-                        //////// it tries to load the image from offline / cache. and it is able to
-                        /// load the image from offline then onSuccess() method called
-                        //// otherwise onError() method called.
-                        //// incase of failure we load the image from online.
-
-                        Picasso.with(ProfileActivity.this).load(coverUrl).networkPolicy(NetworkPolicy.OFFLINE)
-                                .into(profileCover, new com.squareup.picasso.Callback() {
-                                    @Override
-                                    public void onSuccess() {
-
-                                    }
-
-                                    @Override
-                                    public void onError() {
-                                        Picasso.with(ProfileActivity.this).load(coverUrl).into(profileCover);
-                                    }
-                                });
-                    }
+                   showUserData(response.body());
 
                 }
                 else {
@@ -262,6 +225,56 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                 progressDialog.dismiss();
                 Toast.makeText(ProfileActivity.this,"Something went wrong! .." +
                         "Please try again.",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showUserData(User user) {
+        profileUrl = user.getProfileUrl();
+        coverUrl = user.getCoverUrl();
+        collapsingToolbar.setTitle(user.getName());
+        if (!profileUrl.isEmpty()) {
+            Picasso.with(ProfileActivity.this).load(profileUrl).into(profileImage, new com.squareup.picasso.Callback() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError() {
+                    Picasso.with(ProfileActivity.this).load(profileUrl).into(profileImage);
+                }
+            });
+
+            if (!coverUrl.isEmpty()) {
+                Picasso.with(ProfileActivity.this).load(coverUrl).into(profileCover, new com.squareup.picasso.Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        Picasso.with(ProfileActivity.this).load(coverUrl).into(profileCover);
+                    }
+                });
+            }
+
+            addImageCoverClick();
+        }
+    }
+
+    private void addImageCoverClick() {
+        profileCover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                viewFullImage(profileCover, coverUrl);
+            }
+        });
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                viewFullImage(profileImage, profileUrl);
             }
         });
     }
