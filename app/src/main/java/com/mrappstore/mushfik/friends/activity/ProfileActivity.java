@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,7 +71,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
 
     ProfileViewPagerAdapter profileViewPagerAdapter;
 
-    String uid = "0";
+
 
     /*
       0 = profile is still loading
@@ -80,6 +81,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
       4 = people are unknown ( you can send request )
       5 = own profile
      */
+    String uid = "0";
     int CURRENT_STATE = 0;
     int IMAGE_UPLOAD_TYPE = 0;
     String profileUrl="",coverUrl="";
@@ -134,66 +136,64 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
         }
         else {
             // load other people here
+            otherOthersProfile();
 
         }
 
-        profileOptionBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (CURRENT_STATE == 5){
-                    CharSequence options[] = new CharSequence[]{"Change Cover Profile","Change Profile Picture","" +
-                            "View Cover Photo","View Profile Picture"};
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
-                    builder.setOnDismissListener(ProfileActivity.this);
-                    builder.setTitle("Choose Options");
-                    builder.setItems(options, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int position) {
-                            if (position == 0){
-                                IMAGE_UPLOAD_TYPE = 1;
-                                ImagePicker.create(ProfileActivity.this)
-                                        .folderMode(true)
-                                        .single()
-                                        .toolbarFolderTitle("Choose a folder")
-                                        .toolbarImageTitle("Choose an image")
-                                        .start();
+    }
+
+    public void profileOptionButton(View view) {
+
+        if (CURRENT_STATE == 5){
+            CharSequence options[] = new CharSequence[]{"Change Cover Profile","Change Profile Picture","" +
+                    "View Cover Photo","View Profile Picture"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+            builder.setOnDismissListener(ProfileActivity.this);
+            builder.setTitle("Choose Options");
+            builder.setItems(options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int position) {
+                    if (position == 0){
+                        IMAGE_UPLOAD_TYPE = 1;
+                        ImagePicker.create(ProfileActivity.this)
+                                .folderMode(true)
+                                .single()
+                                .toolbarFolderTitle("Choose a folder")
+                                .toolbarImageTitle("Choose an image")
+                                .start();
                                 /*
                                 Change cover profile
                                  */
-                            }
-                            else if (position == 1){
-                                IMAGE_UPLOAD_TYPE = 0;
-                                ImagePicker.create(ProfileActivity.this)
-                                        .folderMode(true)
-                                        .single()
-                                        .toolbarFolderTitle("Choose a folder")
-                                        .toolbarImageTitle("Choose an image")
-                                        .start();
+                    }
+                    else if (position == 1){
+                        IMAGE_UPLOAD_TYPE = 0;
+                        ImagePicker.create(ProfileActivity.this)
+                                .folderMode(true)
+                                .single()
+                                .toolbarFolderTitle("Choose a folder")
+                                .toolbarImageTitle("Choose an image")
+                                .start();
                                 /*O
                                     Change profile picture
                                  */
-                            }
-                            else if (position == 2){
-                                IMAGE_UPLOAD_TYPE = 2;
+                    }
+                    else if (position == 2){
+                        IMAGE_UPLOAD_TYPE = 2;
                                 /*
                                 View cover photo
                                  */
-                            }
-                            else {
-                                IMAGE_UPLOAD_TYPE = 3;
+                    }
+                    else {
+                        IMAGE_UPLOAD_TYPE = 3;
                                 /*
                                 View Profile Picture
                                  */
-                            }
-                        }
-                    });
-                    builder.show();
-
+                    }
                 }
-            }
-        });
+            });
+            builder.show();
 
-
+        }
     }
 
     private void loadProfile() {
@@ -227,6 +227,50 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                         "Please try again.",Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void otherOthersProfile() {
+        UserInterface userInterface = ApiClient.getApiClient().create(UserInterface.class);
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("userId", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        params.put("profileId", uid);
+
+        Call<User> call = userInterface.loadOtherProfile(params);
+
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(@NonNull Call<User> call, @NonNull final Response<User> response) {
+                progressDialog.dismiss();
+                if (response.body() != null) {
+                    showUserData(response.body());
+
+                    if (response.body().getState().equalsIgnoreCase("1")) {
+                        profileOptionBtn.setText("Friends");
+                        CURRENT_STATE = 1;
+                    } else if (response.body().getState().equalsIgnoreCase("2")) {
+                        profileOptionBtn.setText("Cancel Request");
+                        CURRENT_STATE = 2;
+                    } else if (response.body().getState().equalsIgnoreCase("3")) {
+                        CURRENT_STATE = 3;
+                        profileOptionBtn.setText("Accept Request");
+                    } else if (response.body().getState().equalsIgnoreCase("4")) {
+                        CURRENT_STATE = 4;
+                        profileOptionBtn.setText("Send Request");
+                    } else {
+                        CURRENT_STATE = 0;
+                        profileOptionBtn.setText("Error");
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(ProfileActivity.this, "Something went wrong ... Please try later", Toast.LENGTH_SHORT).show();
+            }
+        });
+        // Toast.makeText(Pro
     }
 
     private void showUserData(User user) {
@@ -397,4 +441,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
             }
         });
     }
-}
+
+
+    }
+

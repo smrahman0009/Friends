@@ -21,6 +21,9 @@ public interface UserInterface {
     @GET("loadownprofile")
     Call<User> loadownprofile(@QueryMap Map<String,String> params);
 
+    @GET("loadotherprofile")
+    Call<User> loadOtherProfile(@QueryMap Map<String, String> params);
+
     @POST("poststatus")
     Call<Integer>uploadStatus(@Body MultipartBody requestBody);
 
