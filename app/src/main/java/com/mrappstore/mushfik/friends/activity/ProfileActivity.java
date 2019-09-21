@@ -147,16 +147,16 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
     public void profileOptionButton(View view) {
 
         profileOptionBtn.setEnabled(false);
-        if (CURRENT_STATE == 5){
-            CharSequence options[] = new CharSequence[]{"Change Cover Profile","Change Profile Picture","" +
-                    "View Cover Photo","View Profile Picture"};
+        if (CURRENT_STATE == 5) {
+            CharSequence options[] = new CharSequence[]{"Change Cover Profile", "Change Profile Picture", "" +
+                    "View Cover Photo", "View Profile Picture"};
             AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
             builder.setOnDismissListener(ProfileActivity.this);
             builder.setTitle("Choose Options");
             builder.setItems(options, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int position) {
-                    if (position == 0){
+                    if (position == 0) {
                         IMAGE_UPLOAD_TYPE = 1;
                         ImagePicker.create(ProfileActivity.this)
                                 .folderMode(true)
@@ -167,8 +167,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                                 /*
                                 Change cover profile
                                  */
-                    }
-                    else if (position == 1){
+                    } else if (position == 1) {
                         IMAGE_UPLOAD_TYPE = 0;
                         ImagePicker.create(ProfileActivity.this)
                                 .folderMode(true)
@@ -179,14 +178,12 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                                 /*O
                                     Change profile picture
                                  */
-                    }
-                    else if (position == 2){
+                    } else if (position == 2) {
                         IMAGE_UPLOAD_TYPE = 2;
                                 /*
                                 View cover photo
                                  */
-                    }
-                    else {
+                    } else {
                         IMAGE_UPLOAD_TYPE = 3;
                                 /*
                                 View Profile Picture
@@ -195,8 +192,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                 }
             });
             builder.show();
-        }
-        else if (CURRENT_STATE == 4){
+        } else if (CURRENT_STATE == 4) {
             profileOptionBtn.setText("Processing...");
             CharSequence options[] = new CharSequence[]{"Send Friend Request"};
             AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
@@ -205,14 +201,13 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
             builder.setItems(options, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int position) {
-                    if (position == 0){
+                    if (position == 0) {
                         performAction(CURRENT_STATE);
                     }
                 }
             });
             builder.show();
-        }
-        else if (CURRENT_STATE == 2){
+        } else if (CURRENT_STATE == 2) {
             profileOptionBtn.setText("Processing...");
             CharSequence options[] = new CharSequence[]{"Cancel Friend Request"};
             AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
@@ -221,12 +216,29 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
             builder.setItems(options, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int position) {
-                    if (position == 0){
+                    if (position == 0) {
                         performAction(CURRENT_STATE);
                     }
                 }
             });
             builder.show();
+        } else if (CURRENT_STATE == 3) {
+            profileOptionBtn.setText("Processing...");
+            CharSequence options[] = new CharSequence[]{"Accepet Friend Request"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+            builder.setOnDismissListener(ProfileActivity.this);
+            builder.setTitle("Choose Options");
+            builder.setItems(options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int position) {
+                    if (position == 0) {
+
+                        performAction(CURRENT_STATE);
+                    }
+                }
+            });
+            builder.show();
+
         }
     }
 
