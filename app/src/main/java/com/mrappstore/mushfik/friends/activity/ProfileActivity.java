@@ -383,7 +383,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-
+        profileOptionBtn.setEnabled(true);
     }
 
     @Override
