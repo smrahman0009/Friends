@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -87,6 +88,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
     String profileUrl="",coverUrl="";
     ProgressDialog progressDialog;
     private File compressedImageFile;
+    private static final String TAG = "ProfileActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +146,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
 
     public void profileOptionButton(View view) {
 
+        profileOptionBtn.setEnabled(false);
         if (CURRENT_STATE == 5){
             CharSequence options[] = new CharSequence[]{"Change Cover Profile","Change Profile Picture","" +
                     "View Cover Photo","View Profile Picture"};
@@ -192,8 +195,63 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                 }
             });
             builder.show();
-
         }
+        else if (CURRENT_STATE == 4){
+            profileOptionBtn.setText("Processing...");
+            CharSequence options[] = new CharSequence[]{"Send Friend Request"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+            builder.setOnDismissListener(ProfileActivity.this);
+            builder.setTitle("Choose Options");
+            builder.setItems(options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int position) {
+                    if (position == 0){
+                        performAction(CURRENT_STATE);
+                    }
+                }
+            });
+            builder.show();
+        }
+    }
+
+    private void performAction(final int i) {
+        UserInterface userInterface = ApiClient.getApiClient().create(UserInterface.class);
+
+        Call<Integer> call = userInterface.performAction(new PerformAction(i + "", FirebaseAuth.getInstance().getCurrentUser().getUid(), uid));
+        call.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                profileOptionBtn.setEnabled(true);
+                if (response.body() == 1) {
+                    if (i == 4) {
+                        CURRENT_STATE = 2;
+                        profileOptionBtn.setText("Request Sent");
+                        Toast.makeText(ProfileActivity.this, "Request Sent Successfully", Toast.LENGTH_SHORT).show();
+                    }else if(i==2){
+                       CURRENT_STATE = 4;
+                        profileOptionBtn.setText("Send Request");
+                        Toast.makeText(ProfileActivity.this, "Request cancelled Successfully", Toast.LENGTH_SHORT).show();
+                    }else if(i==3){
+                        CURRENT_STATE = 1;
+                        profileOptionBtn.setText("Friends");
+                        Toast.makeText(ProfileActivity.this, "You are friends in friendster now !", Toast.LENGTH_SHORT).show();
+                    }else if(i==1){
+                        CURRENT_STATE =4;
+                        profileOptionBtn.setText("Send Request");
+                        Toast.makeText(ProfileActivity.this, "You are no more friends !", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    profileOptionBtn.setEnabled(false);
+                    profileOptionBtn.setText("Error...");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+
+            }
+        });
+
     }
 
     private void loadProfile() {
@@ -440,6 +498,16 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
                 progressDialog.dismiss();
             }
         });
+    }
+
+    public class PerformAction{
+        String operationType, userId, profileid;
+
+        public PerformAction(String operationTyp, String userId, String profileId) {
+            this.operationType = operationTyp;
+            this.userId = userId;
+            this.profileid = profileId;
+        }
     }
 
 

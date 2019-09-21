@@ -1,6 +1,7 @@
 package com.mrappstore.mushfik.friends.api.services;
 
 import com.mrappstore.mushfik.friends.activity.LoginActivity;
+import com.mrappstore.mushfik.friends.activity.ProfileActivity;
 import com.mrappstore.mushfik.friends.model.User;
 
 import java.util.List;
@@ -32,5 +33,8 @@ public interface UserInterface {
 
     @GET("search")
     Call<List<User>>search(@QueryMap Map<String,String> params);
+
+    @POST("performaction")
+    Call<Integer>performAction(@Body ProfileActivity.PerformAction performAction);
 
 }

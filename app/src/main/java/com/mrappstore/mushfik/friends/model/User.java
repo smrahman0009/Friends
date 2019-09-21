@@ -8,18 +8,23 @@ public class User {
     @SerializedName("uid")
     @Expose
     private String uid;
+
     @SerializedName("name")
     @Expose
     private String name;
+
     @SerializedName("email")
     @Expose
     private String email;
+
     @SerializedName("profileUrl")
     @Expose
     private String profileUrl;
+
     @SerializedName("coverUrl")
     @Expose
     private String coverUrl;
+
     @SerializedName("userToken")
     @Expose
     private String userToken;
