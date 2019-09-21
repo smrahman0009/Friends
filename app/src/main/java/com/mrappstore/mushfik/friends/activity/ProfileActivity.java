@@ -212,6 +212,22 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
             });
             builder.show();
         }
+        else if (CURRENT_STATE == 2){
+            profileOptionBtn.setText("Processing...");
+            CharSequence options[] = new CharSequence[]{"Cancel Friend Request"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(ProfileActivity.this);
+            builder.setOnDismissListener(ProfileActivity.this);
+            builder.setTitle("Choose Options");
+            builder.setItems(options, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int position) {
+                    if (position == 0){
+                        performAction(CURRENT_STATE);
+                    }
+                }
+            });
+            builder.show();
+        }
     }
 
     private void performAction(final int i) {
