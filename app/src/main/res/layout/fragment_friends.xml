@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
     android:orientation="vertical">
-    <TextView
-        android:id="@+id/defaultTextView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Friends Fragment"
-        />
 
     <TextView
+        android:id="@+id/request_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
@@ -32,6 +27,7 @@
 
 
     <TextView
+        android:id="@+id/friend_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -47,5 +43,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:background="#DCDEE3" />
+
+    <TextView
+        android:id="@+id/defaultTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_margin="20dp"
+        android:textStyle="bold"
+        android:textColor="#000"
+        android:textSize="19sp"
+        android:visibility="gone"
+        android:text="Hmm \n This space looks empty . \n Try adding some friends !" />
 
 </LinearLayout>

@@ -543,7 +543,7 @@ public class ProfileActivity extends AppCompatActivity implements DialogInterfac
         });
     }
 
-    public class PerformAction{
+    public static class PerformAction{
         String operationType, userId, profileid;
 
         public PerformAction(String operationTyp, String userId, String profileId) {
